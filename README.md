@@ -1,1 +1,2 @@
 # Weather-Website
+A sleek and user-friendly weather application built with HTML, JavaScript, and Tailwind CSS. It fetches real-time weather data from the WeatherAPI, allowing users to check current conditions and temperatures for any city. The responsive, glassmorphism-inspired design ensures a smooth experience on both desktop and mobile devices, with interactive search functionality and clear error handling. Perfect for quick weather updates with a modern aesthetic.
