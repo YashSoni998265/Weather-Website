@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #3b82f6, #a78bfa);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        .weather-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        .input-focus:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .btn-hover {
+            transition: all 0.3s ease;
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 640px) {
+            .weather-card {
+                padding: 1.5rem;
+            }
+            .text-5xl {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="weather-card p-8 max-w-md w-full text-white">
+        <h1 class="text-3xl font-bold mb-6 text-center">Weather App</h1>
+        <div class="flex gap-2 mb-6">
+            <input 
+                type="text" 
+                id="locationInput" 
+                placeholder="Enter city name" 
+                class="input-focus w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none"
+            >
+            <button 
+                id="searchBtn" 
+                class="btn-hover bg-blue-500 text-white px-4 py-2 rounded-lg font-medium"
+            >
+                Search
+            </button>
+        </div>
+        <div id="weatherInfo" class="text-center">
+            <p class="text-lg mb-2">Enter a city to see the weather</p>
+        </div>
+        <div id="errorMsg" class="text-center text-red-300 hidden"></div>
+    </div>
+
+    <script>
+        const API_KEY = 'c308c54a00074d6eb9b111132250107';
+        const baseUrl = 'http://api.weatherapi.com/v1/current.json';
+
+        const locationInput = document.getElementById('locationInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const weatherInfo = document.getElementById('weatherInfo');
+        const errorMsg = document.getElementById('errorMsg');
+
+        async function fetchWeather(location) {
+            try {
+                const response = await fetch(`${baseUrl}?key=${API_KEY}&q=${encodeURIComponent(location)}&aqi=yes`);
+                if (!response.ok) throw new Error('City not found');
+                const data = await response.json();
+                displayWeather(data);
+                errorMsg.classList.add('hidden');
+            } catch (error) {
+                weatherInfo.innerHTML = '';
+                errorMsg.classList.remove('hidden');
+                errorMsg.textContent = error.message === 'City not found' ? 'City not found. Please try again.' : 'An error occurred. Please try again later.';
+            }
+        }
+
+        function displayWeather(data) {
+            const { location, current } = data;
+            const tempC = current.temp_c;
+            const condition = current.condition.text;
+            const icon = current.condition.icon;
+            weatherInfo.innerHTML = `
+                <h2 class="text-2xl font-semibold mb-2">${location.name}, ${location.country}</h2>
+                <img src="https:${icon}" alt="${condition}" class="mx-auto mb-4 w-16 h-16">
+                <p class="text-5xl font-bold mb-2">${tempC}°C</p>
+                <p class="text-lg">${condition}</p>
+            `;
+        }
+
+        searchBtn.addEventListener('click', () => {
+            const location = locationInput.value.trim();
+            if (location) {
+                fetchWeather(location);
+            } else {
+                errorMsg.classList.remove('hidden');
+                errorMsg.textContent = 'Please enter a city name.';
+                weatherInfo.innerHTML = '';
+            }
+        });
+
+        locationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+
+        // Fetch weather for London by default
+        fetchWeather('London');
+    </script>
+</body>
+</html>
